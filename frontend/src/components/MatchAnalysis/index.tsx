@@ -8,6 +8,7 @@ import { RallyLengthAnalysis } from './Statistics/RallyLengthAnalysis';
 import { WERatioAnalysis } from './Statistics/WERatioAnalysis';
 import { RallyList } from './RallyList';
 import { LastShotAnalysis } from './Statistics/LastShotAnalysis';
+import { FinalResult } from './FinalResult';
 
 interface MatchAnalysisProps {
   data: MatchData | null;
@@ -84,6 +85,9 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({ data, teams: props
   return (
     <div className="space-y-8 p-4">
       <h2 className="text-2xl font-bold text-center mb-8">Match Analysis</h2>
+
+      {/* Add FinalResult component at the top */}
+      <FinalResult data={data} />
 
       {/* Points Timeline */}
       <div className="bg-white rounded-lg shadow-lg p-6">
