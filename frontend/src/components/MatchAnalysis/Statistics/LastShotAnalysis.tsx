@@ -24,6 +24,14 @@ interface LastShotAnalysisProps {
 }
 
 export const LastShotAnalysis: React.FC<LastShotAnalysisProps> = ({ data, teams }) => {
+  // Sort players so winning team appears first
+  const sortedData = [...data].sort((a, b) => {
+    // If player is from first team (teams[0]), they should appear first
+    if (a.team === teams[0] && b.team !== teams[0]) return 1;
+    if (a.team !== teams[0] && b.team === teams[0]) return -1;
+    return 0;
+  });
+
   console.log('LastShotAnalysis Component:', {
     receivedData: data,
     dataLength: data?.length,
@@ -62,7 +70,7 @@ export const LastShotAnalysis: React.FC<LastShotAnalysisProps> = ({ data, teams 
       <p className="text-gray-600 text-center mb-6">Analysis of who took the final shot and what shot they used</p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {data.map((player, index) => (
+        {sortedData.map((player, index) => (
           <div key={index} className={`p-6 rounded-lg border-2 ${
             player.team === teams[0] ? 'border-blue-200 bg-blue-50' : 'border-red-200 bg-red-50'
           }`}>
