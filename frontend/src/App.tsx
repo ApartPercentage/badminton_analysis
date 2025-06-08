@@ -33,38 +33,23 @@ function App() {
       });
 
       console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
-      let errorMessage = '';
+      let data;
       try {
         const text = await response.text();
         console.log('Response text:', text);
-        
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch (e) {
-          console.error('Failed to parse response as JSON:', e);
-          throw new Error('Server returned invalid JSON');
-        }
-
-        if (!response.ok) {
-          errorMessage = data.error || `Upload failed with status ${response.status}`;
-          throw new Error(errorMessage);
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setFileData(e.target?.result as string);
-        };
-        reader.readAsText(file);
-
-        setTeams(data.teams);
+        data = JSON.parse(text);
       } catch (e) {
-        console.error('Error processing response:', e);
-        throw e;
+        console.error('Failed to parse response as JSON:', e);
+        throw new Error('Server returned invalid JSON');
       }
 
+      if (!response.ok) {
+        throw new Error(data.error || `Upload failed with status ${response.status}`);
+      }
+
+      setFileData(data.fileData);
+      setTeams(data.teams);
       setIsLoading(false);
     } catch (error) {
       console.error('Upload error:', error);
