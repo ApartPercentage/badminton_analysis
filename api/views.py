@@ -7,52 +7,64 @@ import json
 from io import StringIO
 import traceback
 import logging
+from rest_framework.parsers import MultiPartParser, FormParser
 
 logger = logging.getLogger(__name__)
 
 class UploadFileView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
     def post(self, request):
         try:
-            # Add debug logging
-            logger.debug("Received upload request")
-            logger.debug(f"Files in request: {request.FILES}")
+            logger.info("Received file upload request")
             
             if 'file' not in request.FILES:
+                logger.error("No file in request.FILES")
                 return Response(
                     {'error': 'No file uploaded'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             file = request.FILES['file']
-            
-            # Debug file info
-            logger.debug(f"Received file: {file.name}, size: {file.size}, content_type: {file.content_type}")
-            
+            logger.info(f"Processing file: {file.name}")
+
             try:
-                processor = MatchDataProcessor(file)
+                # Read the file content
+                content = file.read()
+                if isinstance(content, bytes):
+                    content = content.decode('utf-8')
+
+                # Create a StringIO object
+                file_obj = StringIO(content)
+                
+                # Initialize processor
+                processor = MatchDataProcessor(file_obj)
                 teams = processor._extract_teams()
                 
-                # Store file content in session
-                request.session['uploaded_file_data'] = file.read().decode('utf-8')
+                # Store in session
+                request.session['uploaded_file_data'] = content
                 request.session['teams'] = teams
+
+                logger.info(f"Successfully processed file, found teams: {teams}")
                 
                 return Response({
                     'teams': teams,
                     'message': 'File uploaded successfully'
                 })
+                
             except Exception as e:
                 logger.error(f"Error processing file: {str(e)}")
                 logger.error(traceback.format_exc())
                 return Response(
-                    {'error': f'Error processing file: {str(e)}'},
+                    {'error': str(e)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
                 
         except Exception as e:
-            logger.error(f"Unexpected error in upload: {str(e)}")
+            logger.error(f"Unexpected error: {str(e)}")
             logger.error(traceback.format_exc())
             return Response(
-                {'error': f'Unexpected error: {str(e)}'},
+                {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
