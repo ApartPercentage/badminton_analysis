@@ -8,7 +8,6 @@ interface RallyListProps {
 }
 
 export const RallyList: React.FC<RallyListProps> = ({ rallies, teams }) => {
-  const [selectedRally, setSelectedRally] = useState<number | null>(null);
   const [selectedSet, setSelectedSet] = useState<'all' | 1 | 2 | 3>('all');
   const filteredRallies = selectedSet === 'all' 
     ? rallies 
@@ -117,30 +116,12 @@ export const RallyList: React.FC<RallyListProps> = ({ rallies, teams }) => {
           </div>
 
           <div className="mb-4">
-            <button
-              onClick={() => setSelectedRally(selectedRally === rally.number ? null : rally.number)}
-              className="font-bold mb-3 text-lg flex items-center space-x-2"
-            >
+            <div className="font-bold mb-3 text-lg flex items-center space-x-2">
               <span>Shot-by-Shot Breakdown</span>
               <span className="text-gray-500">({rally.shots.length} shots)</span>
-              <svg
-                className={`w-5 h-5 transform transition-transform ${
-                  selectedRally === rally.number ? 'rotate-180' : ''
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
+            </div>
 
-            {selectedRally === rally.number && rally.shots.length > 0 && (
+            {rally.shots.length > 0 && (
               <div className="space-y-3">
                 {rally.shots.map((shot, shotIndex) => (
                   <div
