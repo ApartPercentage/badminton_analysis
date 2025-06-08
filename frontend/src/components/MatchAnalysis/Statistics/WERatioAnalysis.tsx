@@ -15,6 +15,7 @@ interface WERatioAnalysisProps {
   data: {
     set1: SetAnalysis;
     set2: SetAnalysis;
+    set3?: SetAnalysis;  // Make set3 optional
   };
   teams: string[];
 }
@@ -31,13 +32,20 @@ export const WERatioAnalysis: React.FC<WERatioAnalysisProps> = ({ data, teams })
     );
   }
 
-  const renderSetAnalysis = (setKey: 'set1' | 'set2', setData: SetAnalysis) => {
+  const renderSetAnalysis = (setKey: 'set1' | 'set2' | 'set3', setData: SetAnalysis) => {
     const setNumber = setKey.charAt(setKey.length - 1);
 
+    const getBorderStyle = (key: string) => {
+      switch(key) {
+        case 'set1': return 'border-blue-200 bg-blue-50';
+        case 'set2': return 'border-purple-200 bg-purple-50';
+        case 'set3': return 'border-green-200 bg-green-50';
+        default: return '';
+      }
+    };
+
     return (
-      <div className={`border-2 ${
-        setKey === 'set1' ? 'border-blue-200 bg-blue-50' : 'border-purple-200 bg-purple-50'
-      } rounded-lg p-6`}>
+      <div className={`border-2 ${getBorderStyle(setKey)} rounded-lg p-6`}>
         <h4 className="text-xl font-bold text-center mb-4 text-gray-800">
           Set {setNumber} W/E Performance
         </h4>
@@ -152,6 +160,7 @@ export const WERatioAnalysis: React.FC<WERatioAnalysisProps> = ({ data, teams })
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {renderSetAnalysis('set1', data.set1)}
         {renderSetAnalysis('set2', data.set2)}
+        {data.set3 && renderSetAnalysis('set3', data.set3)}
       </div>
 
       {/* Overall Analysis */}

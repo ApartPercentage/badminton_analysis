@@ -69,10 +69,10 @@ class MatchDataProcessor:
             team2_players = team2_part.split('(')[0].split('&')  # ["JIA YI FAN", "ZHANG SHU XIAN"]
             team2_players = [p.strip() for p in team2_players]
             
-            # Map country codes to team names in our data
+            # Simply map the first team's country to teams[0] and second team's country to teams[1]
             country_to_team = {
-                team1_country: self.teams[0] if team1_country in self.teams[0] else self.teams[1],
-                team2_country: self.teams[1] if team2_country in self.teams[1] else self.teams[0]
+                team1_country: self.teams[0],
+                team2_country: self.teams[1]
             }
             
             # Assign players to their teams
