@@ -48,59 +48,27 @@ class MatchDataProcessor:
         """Extract players and their team associations."""
         players = {team: [] for team in self.teams}
         
-        # Get the match title from the first row's Timeline
-        match_title = self.df['Timeline'].iloc[0]
-        
-        # Parse team information from the title
-        # Format: "PMM2025_R16_WD_GO PEI KEE & TEOH MEI XING (MAS) - JIA YI FAN & ZHANG SHU XIAN (CHN)"
         try:
-            # Split by ' - ' to separate the two teams
-            teams_part = match_title.split(' - ')
+            # Filter rows where Row contains country names and PLAYER'S NAME is not null
+            country_player_rows = self.df[
+                (self.df['Row'].isin(self.teams)) & 
+                (self.df["PLAYER'S NAME"].notna())
+            ]
             
-            # Extract first team's players (before the ' - ')
-            team1_part = teams_part[0].split('_')[-1]  # "GO PEI KEE & TEOH MEI XING (MAS)"
-            team1_country = team1_part.split('(')[-1].strip(')')  # "MAS"
-            team1_players = team1_part.split('(')[0].split('&')  # ["GO PEI KEE", "TEOH MEI XING"]
-            team1_players = [p.strip() for p in team1_players]
-            
-            # Extract second team's players (after the ' - ')
-            team2_part = teams_part[1]  # "JIA YI FAN & ZHANG SHU XIAN (CHN)"
-            team2_country = team2_part.split('(')[-1].strip(')')  # "CHN"
-            team2_players = team2_part.split('(')[0].split('&')  # ["JIA YI FAN", "ZHANG SHU XIAN"]
-            team2_players = [p.strip() for p in team2_players]
-            
-            # Simply map the first team's country to teams[0] and second team's country to teams[1]
-            country_to_team = {
-                team1_country: self.teams[0],
-                team2_country: self.teams[1]
-            }
-            
-            # Assign players to their teams
-            players[country_to_team[team1_country]] = team1_players
-            players[country_to_team[team2_country]] = team2_players
+            # Group by country and get unique players
+            for _, row in country_player_rows.iterrows():
+                country = row['Row']
+                player = row["PLAYER'S NAME"]
+                if player not in players[country]:
+                    players[country].append(player)
             
             print("Debug - Extracted players by team:", players)
             return players
             
         except Exception as e:
-            print(f"Error parsing player information: {str(e)}")
-            print("Falling back to shot-based player assignment")
-            
-            # Fallback: Assign players based on their shots
-            for _, row in self.df.iterrows():
-                if pd.notna(row["PLAYER'S NAME"]):
-                    player_name = row["PLAYER'S NAME"]
-                    # Find which team this player belongs to
-                    for team in self.teams:
-                        team_rows = self.df[
-                            (self.df["Row"] == team) & 
-                            (self.df["PLAYER'S NAME"] == player_name)
-                        ]
-                        if not team_rows.empty and player_name not in players[team]:
-                            players[team].append(player_name)
-            
-            print("Debug - Extracted players by team (fallback method):", players)
-            return players
+            print(f"Error mapping players to teams: {str(e)}")
+            print(traceback.format_exc())
+            raise
     
     def process_match_data(self, set_scores: Dict[str, Dict[str, int]]) -> Dict[str, Any]:
         """Process match data with provided set scores."""
