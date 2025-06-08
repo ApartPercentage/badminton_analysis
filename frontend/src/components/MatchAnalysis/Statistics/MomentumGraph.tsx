@@ -1,6 +1,6 @@
 // src/components/MatchAnalysis/Statistics/MomentumGraph.tsx
 import React from 'react';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
 interface MomentumGraphProps {
   data: Array<{
@@ -26,7 +26,6 @@ export const MomentumGraph: React.FC<MomentumGraphProps> = ({ data, teams, title
             <XAxis dataKey="rally" />
             <YAxis />
             <Tooltip />
-            <Legend />
             <Line
               type="monotone"
               dataKey={`${teams[0].toLowerCase()}Score`}

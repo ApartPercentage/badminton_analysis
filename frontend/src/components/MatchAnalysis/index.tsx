@@ -151,6 +151,15 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({ data, teams: props
             />
           )}
 
+          {/* Add Set 3 Momentum Graph */}
+          {data.statistics?.momentum?.set3 && data.statistics.momentum.set3.length > 0 && (
+            <MomentumGraph 
+              data={data.statistics.momentum.set3} 
+              teams={teams}
+              title="Set 3 Score Momentum"
+            />
+          )}
+
           {/* Add Last Shot Analysis */}
           {data.statistics?.finishingPlayers && (
             <LastShotAnalysis 

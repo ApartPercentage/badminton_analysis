@@ -31,6 +31,14 @@ export const LastShotAnalysis: React.FC<LastShotAnalysisProps> = ({ data, teams 
     firstPlayer: data?.[0]
   });
 
+  console.log('LastShotAnalysis Component Debug:', {
+    receivedData: data,
+    dataLength: data?.length,
+    teams,
+    firstPlayer: data?.[0],
+    dataType: Array.isArray(data) ? 'array' : typeof data
+  });
+
   const getShotColor = (shotType: string): string => {
     const colors: { [key: string]: string } = {
       'smash': 'bg-red-600',

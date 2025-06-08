@@ -9,7 +9,7 @@ interface RallyListProps {
 
 export const RallyList: React.FC<RallyListProps> = ({ rallies, teams }) => {
   const [selectedRally, setSelectedRally] = useState<number | null>(null);
-  const [selectedSet, setSelectedSet] = useState<'all' | 1 | 2>('all');
+  const [selectedSet, setSelectedSet] = useState<'all' | 1 | 2 | 3>('all');
   const filteredRallies = selectedSet === 'all' 
     ? rallies 
     : rallies.filter(r => r.set === selectedSet);
@@ -65,22 +65,24 @@ export const RallyList: React.FC<RallyListProps> = ({ rallies, teams }) => {
           >
             All Rallies ({rallies.length})
           </button>
-          <button
-            onClick={() => setSelectedSet(1)}
-            className={`px-4 py-2 rounded font-medium transition-colors ${
-              selectedSet === 1 ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Set 1 ({rallies.filter(r => r.set === 1).length})
-          </button>
-          <button
-            onClick={() => setSelectedSet(2)}
-            className={`px-4 py-2 rounded font-medium transition-colors ${
-              selectedSet === 2 ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Set 2 ({rallies.filter(r => r.set === 2).length})
-          </button>
+          {[1, 2, 3].map(setNum => {
+            const setRallies = rallies.filter(r => r.set === setNum);
+            // Only show button if there are rallies for this set
+            if (setRallies.length > 0) {
+              return (
+                <button
+                  key={setNum}
+                  onClick={() => setSelectedSet(setNum)}
+                  className={`px-4 py-2 rounded font-medium transition-colors ${
+                    selectedSet === setNum ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Set {setNum} ({setRallies.length})
+                </button>
+              );
+            }
+            return null;
+          })}
         </div>
       </div>
       {filteredRallies.map((rally, _index) => (

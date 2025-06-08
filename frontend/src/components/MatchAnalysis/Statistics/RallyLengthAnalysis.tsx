@@ -46,7 +46,7 @@ export const RallyLengthAnalysis: React.FC<RallyLengthAnalysisProps> = ({ data, 
           return (
             <div key={category} className="p-6 border-2 border-gray-200 rounded-lg">
               <h4 className="font-bold text-center mb-4 capitalize text-lg">
-                {category} Rallies ({categoryData.total})
+                {category} Rallies
               </h4>
               <p className="text-center text-sm text-gray-600 mb-4">
                 {getDurationRange(category)}
@@ -89,44 +89,10 @@ export const RallyLengthAnalysis: React.FC<RallyLengthAnalysisProps> = ({ data, 
                     {winningTeam} Dominates
                   </div>
                 )}
-
-                <div className="mt-4 text-sm text-gray-600">
-                  <div className="flex justify-between items-center">
-                    <span>Total Rallies:</span>
-                    <span className="font-medium">{categoryData.total}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Average Points Won:</span>
-                    <span className="font-medium">
-                      {(categoryData.total > 0
-                        ? (100 / categoryData.total).toFixed(1)
-                        : '0')}%
-                    </span>
-                  </div>
-                </div>
               </div>
             </div>
           );
         })}
-      </div>
-
-      <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-        <h4 className="font-semibold mb-2">Key Insights:</h4>
-        <ul className="list-disc list-inside space-y-2 text-sm text-gray-700">
-          {Object.entries(data).map(([category, categoryData]) => {
-            const winningTeam = getWinningTeam(categoryData, teams);
-            if (!winningTeam) return null;
-
-            return (
-              <li key={category}>
-                In {category} rallies, {winningTeam} wins {
-                  categoryData[winningTeam.toLowerCase()]
-                } out of {categoryData.total} points (
-                {categoryData[`${winningTeam.toLowerCase()}_percentage`].toFixed(1)}%)
-              </li>
-            );
-          })}
-        </ul>
       </div>
 
       <div className="mt-6 text-center text-sm text-gray-500">

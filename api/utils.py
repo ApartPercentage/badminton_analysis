@@ -48,25 +48,59 @@ class MatchDataProcessor:
         """Extract players and their team associations."""
         players = {team: [] for team in self.teams}
         
-        # Add debug print
-        print("Debug - All player names:", self.df["PLAYER'S NAME"].dropna().unique())
+        # Get the match title from the first row's Timeline
+        match_title = self.df['Timeline'].iloc[0]
         
-        # Look for players in all rows, not just team rows
-        for _, row in self.df.iterrows():
-            if pd.notna(row["PLAYER'S NAME"]):
-                player_name = row["PLAYER'S NAME"]
-                # Find which team this player belongs to
-                for team in self.teams:
-                    team_rows = self.df[
-                        (self.df["Row"] == team) & 
-                        (self.df["PLAYER'S NAME"] == player_name)
-                    ]
-                    if not team_rows.empty and player_name not in players[team]:
-                        players[team].append(player_name)
-        
-        # Add debug print
-        print("Debug - Extracted players by team:", players)
-        return players
+        # Parse team information from the title
+        # Format: "PMM2025_R16_WD_GO PEI KEE & TEOH MEI XING (MAS) - JIA YI FAN & ZHANG SHU XIAN (CHN)"
+        try:
+            # Split by ' - ' to separate the two teams
+            teams_part = match_title.split(' - ')
+            
+            # Extract first team's players (before the ' - ')
+            team1_part = teams_part[0].split('_')[-1]  # "GO PEI KEE & TEOH MEI XING (MAS)"
+            team1_country = team1_part.split('(')[-1].strip(')')  # "MAS"
+            team1_players = team1_part.split('(')[0].split('&')  # ["GO PEI KEE", "TEOH MEI XING"]
+            team1_players = [p.strip() for p in team1_players]
+            
+            # Extract second team's players (after the ' - ')
+            team2_part = teams_part[1]  # "JIA YI FAN & ZHANG SHU XIAN (CHN)"
+            team2_country = team2_part.split('(')[-1].strip(')')  # "CHN"
+            team2_players = team2_part.split('(')[0].split('&')  # ["JIA YI FAN", "ZHANG SHU XIAN"]
+            team2_players = [p.strip() for p in team2_players]
+            
+            # Map country codes to team names in our data
+            country_to_team = {
+                team1_country: self.teams[0] if team1_country in self.teams[0] else self.teams[1],
+                team2_country: self.teams[1] if team2_country in self.teams[1] else self.teams[0]
+            }
+            
+            # Assign players to their teams
+            players[country_to_team[team1_country]] = team1_players
+            players[country_to_team[team2_country]] = team2_players
+            
+            print("Debug - Extracted players by team:", players)
+            return players
+            
+        except Exception as e:
+            print(f"Error parsing player information: {str(e)}")
+            print("Falling back to shot-based player assignment")
+            
+            # Fallback: Assign players based on their shots
+            for _, row in self.df.iterrows():
+                if pd.notna(row["PLAYER'S NAME"]):
+                    player_name = row["PLAYER'S NAME"]
+                    # Find which team this player belongs to
+                    for team in self.teams:
+                        team_rows = self.df[
+                            (self.df["Row"] == team) & 
+                            (self.df["PLAYER'S NAME"] == player_name)
+                        ]
+                        if not team_rows.empty and player_name not in players[team]:
+                            players[team].append(player_name)
+            
+            print("Debug - Extracted players by team (fallback method):", players)
+            return players
     
     def process_match_data(self, set_scores: Dict[str, Dict[str, int]]) -> Dict[str, Any]:
         """Process match data with provided set scores."""
@@ -158,6 +192,15 @@ class MatchDataProcessor:
                         current_set = 2
                         team1_score = 0
                         team2_score = 0
+                elif current_set == 2:
+                    target_score = set_scores['set2']
+                    if (team1_score >= 21 or team2_score >= 21) and \
+                       abs(team1_score - team2_score) >= 2:
+                        # Check if we need a third set (if scores are tied 1-1)
+                        if 'set3' in set_scores:
+                            current_set = 3
+                            team1_score = 0
+                            team2_score = 0
 
                 # Update scores
                 winner = rally["outcome"]["pointWinner"]
@@ -179,6 +222,7 @@ class MatchDataProcessor:
             'totalRallies': len(rallies),
             'set1Count': len([r for r in rallies if r.get('set') == 1]),
             'set2Count': len([r for r in rallies if r.get('set') == 2]),
+            'set3Count': len([r for r in rallies if r.get('set') == 3]),
             f'{team1}Points': len([r for r in rallies if r['outcome'] and r['outcome']['pointWinner'] == team1]),
             f'{team2}Points': len([r for r in rallies if r['outcome'] and r['outcome']['pointWinner'] == team2])
         }
@@ -199,7 +243,8 @@ class MatchDataProcessor:
         # W/E Ratio analysis by set
         set_we_analysis = {
             'set1': {team.lower(): {'winners': 0, 'errors': 0} for team in self.teams},
-            'set2': {team.lower(): {'winners': 0, 'errors': 0} for team in self.teams}
+            'set2': {team.lower(): {'winners': 0, 'errors': 0} for team in self.teams},
+            'set3': {team.lower(): {'winners': 0, 'errors': 0} for team in self.teams}
         }
 
         # Player finishing stats
@@ -311,10 +356,12 @@ class MatchDataProcessor:
         # Generate momentum data
         set1_rallies = [r for r in rallies if r.get('set') == 1]
         set2_rallies = [r for r in rallies if r.get('set') == 2]
+        set3_rallies = [r for r in rallies if r.get('set') == 3]
         
         momentum = {
             'set1': self._generate_momentum_data(set1_rallies),
-            'set2': self._generate_momentum_data(set2_rallies)
+            'set2': self._generate_momentum_data(set2_rallies),
+            'set3': self._generate_momentum_data(set3_rallies)
         }
 
         # Add debug prints
@@ -333,10 +380,16 @@ class MatchDataProcessor:
         finishing_players_list = list(finishing_stats.values())
         print("Debug - Final finishing players list:", finishing_players_list)
 
+        print("Debug - Final statistics:", {
+            'finishingPlayers': finishing_players_list,
+            'totalRallies': stats['totalRallies']
+        })
+
         return {
             'totalRallies': stats['totalRallies'],
             'set1Count': stats['set1Count'],
             'set2Count': stats['set2Count'],
+            'set3Count': stats['set3Count'],
             f'{team1}Points': stats[f'{team1}Points'],
             f'{team2}Points': stats[f'{team2}Points'],
             'sequences': {

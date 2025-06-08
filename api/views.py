@@ -95,6 +95,8 @@ class AnalyzeMatchView(APIView):
                 # Process the match data
                 analysis_result = processor.process_match_data(scores)
                 
+                print("Debug - Analysis result:", analysis_result)
+                
                 return Response(analysis_result)
                 
             except Exception as e:

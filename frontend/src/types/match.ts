@@ -82,6 +82,7 @@ export interface Shot {
       momentum: {
         set1: MomentumData[];
         set2: MomentumData[];
+        set3?: MomentumData[];
       };
     };
     pointsTimeline: {
