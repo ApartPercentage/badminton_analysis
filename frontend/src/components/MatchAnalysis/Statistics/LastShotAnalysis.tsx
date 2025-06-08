@@ -102,7 +102,7 @@ export const LastShotAnalysis: React.FC<LastShotAnalysisProps> = ({ data, teams 
             <div className="bg-white p-3 rounded">
               <h5 className="font-medium mb-3">Shot Breakdown:</h5>
               <div className="space-y-2">
-                {player.shotBreakdownArray?.slice(0, 5).map((shotData, idx) => (
+                {player.shotBreakdownArray?.map((shotData, idx) => (
                   <div key={idx} className="flex justify-between items-center text-sm bg-gray-50 p-2 rounded">
                     <span className={`px-2 py-1 rounded text-white text-xs ${getShotColor(shotData.shot)}`}>
                       {shotData.shot}
