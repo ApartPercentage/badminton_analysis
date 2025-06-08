@@ -84,4 +84,18 @@ export interface Shot {
         set2: MomentumData[];
       };
     };
+    pointsTimeline: {
+      [team: string]: Array<{ time: number }>;
+    };
+    playerStats: any; // Replace with proper type
+    rallyLengthAnalysis: {
+      short: RallyLengthData;
+      medium: RallyLengthData;
+      long: RallyLengthData;
+    };
+  }
+
+  interface RallyLengthData {
+    total: number;
+    [team: string]: number;
   }

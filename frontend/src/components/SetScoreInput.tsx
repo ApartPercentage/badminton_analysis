@@ -5,8 +5,14 @@ interface SetScoreInputProps {
   onScoresSubmit: (scores: Record<string, Record<string, number>>) => void;
 }
 
+interface Scores {
+  set1: { [key: string]: number };
+  set2: { [key: string]: number };
+  set3?: { [key: string]: number };  // Make set3 optional
+}
+
 export const SetScoreInput: React.FC<SetScoreInputProps> = ({ teams, onScoresSubmit }) => {
-  const [scores, setScores] = useState({
+  const [scores, setScores] = useState<Scores>({
     set1: { [teams[0]]: 0, [teams[1]]: 0 },
     set2: { [teams[0]]: 0, [teams[1]]: 0 }
   });
@@ -40,7 +46,7 @@ export const SetScoreInput: React.FC<SetScoreInputProps> = ({ teams, onScoresSub
     }
   }, [scores.set1, scores.set2, teams]);
 
-  const handleScoreChange = (set: string, team: string, value: string) => {
+  const handleScoreChange = (set: keyof Scores, team: string, value: string) => {
     const numValue = parseInt(value) || 0;
     setScores(prev => ({
       ...prev,
@@ -54,14 +60,14 @@ export const SetScoreInput: React.FC<SetScoreInputProps> = ({ teams, onScoresSub
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Submitting scores:', scores);
-    onScoresSubmit(scores);
+    onScoresSubmit(scores as unknown as Record<string, Record<string, number>>);
   };
 
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
       <h2 className="text-2xl font-bold text-center mb-6">Enter Match Scores</h2>
       <form onSubmit={handleSubmit}>
-        {['set1', 'set2'].map((set) => (
+        {(['set1', 'set2'] as const).map((set) => (
           <div key={set} className="mb-6">
             <h3 className="text-lg font-semibold mb-3">
               Set {set.charAt(set.length - 1)}
@@ -81,7 +87,7 @@ export const SetScoreInput: React.FC<SetScoreInputProps> = ({ teams, onScoresSub
                     min="0"
                     max="30"
                     value={scores[set][team]}
-                    onChange={(e) => handleScoreChange(set, team, e.target.value)}
+                    onChange={(e) => handleScoreChange(set as keyof Scores, team, e.target.value)}
                     className="block w-full rounded-md border-gray-300 shadow-sm 
                              focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                     required
@@ -111,7 +117,7 @@ export const SetScoreInput: React.FC<SetScoreInputProps> = ({ teams, onScoresSub
                     min="0"
                     max="30"
                     value={scores.set3?.[team] || 0}
-                    onChange={(e) => handleScoreChange('set3', team, e.target.value)}
+                    onChange={(e) => handleScoreChange('set3' as keyof Scores, team, e.target.value)}
                     className="block w-full rounded-md border-gray-300 shadow-sm 
                              focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                     required={needsThirdSet}

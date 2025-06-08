@@ -14,6 +14,40 @@ interface MatchAnalysisProps {
   teams: string[];
 }
 
+interface RallyLengthData {
+  total: number;
+  [key: string]: number;
+}
+
+interface RallyLengthByOutcome {
+  short: { [team: string]: number };
+  medium: { [team: string]: number };
+  long: { [team: string]: number };
+}
+
+interface TransformedRallyLength {
+  short: RallyLengthData;
+  medium: RallyLengthData;
+  long: RallyLengthData;
+}
+
+const transformRallyLengthData = (data: RallyLengthByOutcome): TransformedRallyLength => {
+  return {
+    short: {
+      ...data.short,
+      total: Object.values(data.short).reduce((sum, val) => sum + val, 0)
+    },
+    medium: {
+      ...data.medium,
+      total: Object.values(data.medium).reduce((sum, val) => sum + val, 0)
+    },
+    long: {
+      ...data.long,
+      total: Object.values(data.long).reduce((sum, val) => sum + val, 0)
+    }
+  };
+};
+
 export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({ data, teams: propsTeams }) => {
   const [showAdvancedAnalysis, setShowAdvancedAnalysis] = useState(false);
 
@@ -75,8 +109,7 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({ data, teams: props
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {data.playerStats && (
           <PlayerStats 
-            stats={data.playerStats} 
-            teams={teams}
+            players={data.playerStats} 
           />
         )}
         
@@ -132,7 +165,10 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({ data, teams: props
           )}
           
           {data.statistics?.rallyLengthByOutcome && (
-            <RallyLengthAnalysis data={data.statistics.rallyLengthByOutcome} teams={teams} />
+            <RallyLengthAnalysis 
+              data={transformRallyLengthData(data.statistics.rallyLengthByOutcome)} 
+              teams={teams} 
+            />
           )}
           
           {data.statistics?.sequences && (

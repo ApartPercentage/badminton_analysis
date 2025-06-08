@@ -83,7 +83,7 @@ export const RallyList: React.FC<RallyListProps> = ({ rallies, teams }) => {
           </button>
         </div>
       </div>
-      {filteredRallies.map((rally, index) => (
+      {filteredRallies.map((rally, _index) => (
         <div 
           key={rally.number}
           className={`border-l-4 rounded-lg p-6 shadow-lg ${

@@ -7,7 +7,6 @@ import { MatchAnalysis } from './components/MatchAnalysis';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 function App() {
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [fileData, setFileData] = useState<string | null>(null);
   const [teams, setTeams] = useState<string[]>([]);
   const [matchData, setMatchData] = useState<MatchData | null>(null);
@@ -22,6 +21,7 @@ function App() {
       formData.append('file', file);
 
       const response = await fetch(`${API_URL}/api/upload/`, {
+      //const response = await fetch(`http://localhost:8000/api/upload/`, {
         method: 'POST',
         body: formData,
       });
@@ -38,10 +38,9 @@ function App() {
       reader.readAsText(file);
 
       setTeams(data.teams);
-      setUploadedFile(file);
       setIsLoading(false);
     } catch (error) {
-      setError(`Error uploading file: ${error.message}`);
+      setError(`Error uploading file: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsLoading(false);
     }
   };
@@ -67,6 +66,7 @@ function App() {
       });
 
       const response = await fetch(`${API_URL}/api/analyze/`, {
+      //const response = await fetch(`http://localhost:8000/api/analyze/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ function App() {
       setIsLoading(false);
     } catch (error) {
       console.error('Score submission error:', error);
-      setError(`Error analyzing match: ${error.message}`);
+      setError(`Error analyzing match: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsLoading(false);
     }
   };
@@ -123,7 +123,7 @@ function App() {
           ) : !matchData ? (
             <SetScoreInput teams={teams} onScoresSubmit={handleScoresSubmit} />
           ) : (
-            <MatchAnalysis data={matchData} />
+            <MatchAnalysis data={matchData} teams={teams} />
           )}
         </div>
       </main>
