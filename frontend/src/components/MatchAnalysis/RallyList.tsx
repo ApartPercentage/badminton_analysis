@@ -72,7 +72,7 @@ export const RallyList: React.FC<RallyListProps> = ({ rallies, teams }) => {
               return (
                 <button
                   key={setNum}
-                  onClick={() => setSelectedSet(setNum)}
+                  onClick={() => setSelectedSet(setNum as 1 | 2 | 3)}
                   className={`px-4 py-2 rounded font-medium transition-colors ${
                     selectedSet === setNum ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
