@@ -24,7 +24,13 @@ function App() {
       //const response = await fetch(`http://localhost:8000/api/upload/`, {
         method: 'POST',
         body: formData,
+        credentials: 'include',
       });
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server returned non-JSON response');
+      }
 
       const data = await response.json();
       if (!response.ok) {
@@ -40,6 +46,7 @@ function App() {
       setTeams(data.teams);
       setIsLoading(false);
     } catch (error) {
+      console.error('Upload error:', error);
       setError(`Error uploading file: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsLoading(false);
     }

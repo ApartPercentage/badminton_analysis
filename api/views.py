@@ -13,6 +13,10 @@ logger = logging.getLogger(__name__)
 class UploadFileView(APIView):
     def post(self, request):
         try:
+            # Add debug logging
+            logger.debug("Received upload request")
+            logger.debug(f"Files in request: {request.FILES}")
+            
             if 'file' not in request.FILES:
                 return Response(
                     {'error': 'No file uploaded'},
@@ -20,22 +24,36 @@ class UploadFileView(APIView):
                 )
             
             file = request.FILES['file']
-            processor = MatchDataProcessor(file)
-            teams = processor._extract_teams()
             
-            # Store file content in session
-            request.session['uploaded_file_data'] = file.read().decode('utf-8')
-            request.session['teams'] = teams
+            # Debug file info
+            logger.debug(f"Received file: {file.name}, size: {file.size}, content_type: {file.content_type}")
             
-            return Response({
-                'teams': teams,
-                'message': 'File uploaded successfully'
-            })
+            try:
+                processor = MatchDataProcessor(file)
+                teams = processor._extract_teams()
+                
+                # Store file content in session
+                request.session['uploaded_file_data'] = file.read().decode('utf-8')
+                request.session['teams'] = teams
+                
+                return Response({
+                    'teams': teams,
+                    'message': 'File uploaded successfully'
+                })
+            except Exception as e:
+                logger.error(f"Error processing file: {str(e)}")
+                logger.error(traceback.format_exc())
+                return Response(
+                    {'error': f'Error processing file: {str(e)}'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
         except Exception as e:
-            print(f"Error uploading file: {str(e)}")
+            logger.error(f"Unexpected error in upload: {str(e)}")
+            logger.error(traceback.format_exc())
             return Response(
-                {'error': str(e)},
-                status=status.HTTP_400_BAD_REQUEST
+                {'error': f'Unexpected error: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 class AnalyzeMatchView(APIView):

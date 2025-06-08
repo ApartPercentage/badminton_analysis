@@ -30,10 +30,10 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
-if not ALLOWED_HOSTS:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.onrender.com', 'badminton-analysis-dy98.onrender.com',  # Your backend domain
-    'badminton-analysis-frontend.onrender.com', ]
+ALLOWED_HOSTS = [
+    'badminton-analysis-dy98.onrender.com',  # Your backend domain
+    'badminton-analysis-frontend.onrender.com',  # Your frontend domain
+]
 
 
 # Application definition
@@ -66,15 +66,13 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Allow requests from your React frontend
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Development
-    "http://localhost:5173",  # Vite development
     "https://badminton-analysis-frontend.onrender.com",  # Your deployed frontend
 ]
 
-# If you want to make it more flexible with environment variables:
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://badminton-analysis-frontend.onrender.com')
-if FRONTEND_URL not in CORS_ALLOWED_ORIGINS:
-    CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
+# Add CSRF trusted origins
+CSRF_TRUSTED_ORIGINS = [
+    "https://badminton-analysis-frontend.onrender.com",
+]
 
 # Static filesAdd commentMore actions
 STATIC_URL = '/static/'
