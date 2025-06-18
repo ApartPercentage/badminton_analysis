@@ -9,6 +9,7 @@ import { WERatioAnalysis } from './Statistics/WERatioAnalysis';
 import { RallyList } from './RallyList';
 import { LastShotAnalysis } from './Statistics/LastShotAnalysis';
 import { FinalResult } from './FinalResult';
+import { PDFDownload } from '../PDFDownload';
 
 interface MatchAnalysisProps {
   data: MatchData | null;
@@ -83,8 +84,13 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({ data, teams: props
   });
 
   return (
-    <div className="space-y-8 p-4">
-      <h2 className="text-2xl font-bold text-center mb-8">Match Analysis</h2>
+    <div id="match-analysis" className="space-y-8 p-4">
+      <div className="flex flex-col items-center gap-4">
+        <h2 className="text-2xl font-bold text-center mb-4">Match Analysis</h2>
+        
+        {/* PDF Download Button */}
+        <PDFDownload data={data} teams={teams} />
+      </div>
 
       {/* Add FinalResult component at the top */}
       <FinalResult data={data} />
