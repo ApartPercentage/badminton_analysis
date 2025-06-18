@@ -157,10 +157,23 @@ export const WERatioAnalysis: React.FC<WERatioAnalysisProps> = ({ data, teams })
         Winners/Errors Ratio Analysis
       </h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className={`grid gap-8 ${
+        data.set3 && 
+        Object.keys(data.set3).length > 0 && 
+        Object.values(data.set3).some(teamData => 
+          teamData && (teamData.winners > 0 || teamData.errors > 0)
+        )
+          ? 'grid-cols-1 md:grid-cols-3' 
+          : 'grid-cols-1 md:grid-cols-2'
+      }`}>
         {renderSetAnalysis('set1', data.set1)}
         {renderSetAnalysis('set2', data.set2)}
-        {data.set3 && renderSetAnalysis('set3', data.set3)}
+        {data.set3 && 
+         Object.keys(data.set3).length > 0 && 
+         Object.values(data.set3).some(teamData => 
+           teamData && (teamData.winners > 0 || teamData.errors > 0)
+         ) && 
+         renderSetAnalysis('set3', data.set3)}
       </div>
 
       {/* Overall Analysis */}
