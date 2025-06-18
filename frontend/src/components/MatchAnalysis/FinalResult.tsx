@@ -47,11 +47,44 @@ export const FinalResult: React.FC<{ data: MatchData }> = ({ data }) => {
   const set3Score = getSetScore(3);
   const matchResult = determineMatchResult(set1Score, set2Score, set3Score);
 
+  // Get player names for each team
+  const team1Players = data.players?.[data.teams[0]] || [];
+  const team2Players = data.players?.[data.teams[1]] || [];
+
   return (
     <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-red-50 rounded-lg border-2 border-gray-200">
       <h2 className="text-xl font-bold text-center mb-4">
         Final Result: {matchResult.score} ({matchResult.winner} Wins)
       </h2>
+      
+      {/* Team and Player Information */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="text-center p-4 bg-white rounded-lg shadow">
+          <h3 className="font-bold text-lg text-blue-600 mb-2">{data.teams[0]}</h3>
+          <div className="text-sm text-gray-700">
+            {team1Players.length > 0 ? (
+              team1Players.map((player, index) => (
+                <div key={index} className="mb-1">{player}</div>
+              ))
+            ) : (
+              <div className="text-gray-500">No player data</div>
+            )}
+          </div>
+        </div>
+        <div className="text-center p-4 bg-white rounded-lg shadow">
+          <h3 className="font-bold text-lg text-red-600 mb-2">{data.teams[1]}</h3>
+          <div className="text-sm text-gray-700">
+            {team2Players.length > 0 ? (
+              team2Players.map((player, index) => (
+                <div key={index} className="mb-1">{player}</div>
+              ))
+            ) : (
+              <div className="text-gray-500">No player data</div>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="text-center p-4 bg-white rounded-lg shadow">
           <h3 className="font-bold text-lg mb-2">Set 1</h3>
