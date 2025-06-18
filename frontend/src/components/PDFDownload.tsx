@@ -1,14 +1,12 @@
 import React from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import type { MatchData } from '../types/match';
 
 interface PDFDownloadProps {
-  data: MatchData;
   teams: string[];
 }
 
-export const PDFDownload: React.FC<PDFDownloadProps> = ({ data, teams }) => {
+export const PDFDownload: React.FC<PDFDownloadProps> = ({ teams }) => {
   const generatePDF = async () => {
     try {
       // Show loading state
@@ -70,7 +68,6 @@ export const PDFDownload: React.FC<PDFDownloadProps> = ({ data, teams }) => {
           if (clonedElement) {
             // Ensure all images and charts are loaded
             const images = clonedElement.querySelectorAll('img');
-            const charts = clonedElement.querySelectorAll('canvas, svg');
             
             // Wait for all images to load
             const imagePromises = Array.from(images).map(img => {
