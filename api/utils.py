@@ -223,7 +223,8 @@ class MatchDataProcessor:
                 # Process shot sequences
                 if rally['shots']:
                     game_shots = [shot for shot in rally['shots'] 
-                                if shot['type'] not in ['SERVE', 'RECEIVE SERVES']]
+                                #if shot['type'] not in ['SERVE', 'RECEIVE SERVES']]
+                                if shot['type'] not in ['RECEIVE SERVES']]
                     if game_shots:
                         sequence = ' → '.join(shot['type'] for shot in game_shots)
                         outcome_team = rally['outcome']['outcomeTeam'].lower()
