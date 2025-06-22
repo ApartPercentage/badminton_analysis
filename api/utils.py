@@ -227,15 +227,17 @@ class MatchDataProcessor:
                                 if shot['type'] not in ['RECEIVE SERVES']]
                     if game_shots:
                         sequence = ' → '.join(shot['type'] for shot in game_shots)
-                        outcome_team = rally['outcome']['outcomeTeam'].lower()
-                        outcome_type = rally['outcome']['type'].lower()
-                        
-                        if outcome_type == 'winner':
-                            sequences[outcome_team]['winning'][sequence] = \
-                                sequences[outcome_team]['winning'].get(sequence, 0) + 1
-                        elif outcome_type == 'error':
-                            sequences[outcome_team]['losing'][sequence] = \
-                                sequences[outcome_team]['losing'].get(sequence, 0) + 1
+                        # Skip sequences that are just "SERVE" alone
+                        if sequence != "SERVE":
+                            outcome_team = rally['outcome']['outcomeTeam'].lower()
+                            outcome_type = rally['outcome']['type'].lower()
+                            
+                            if outcome_type == 'winner':
+                                sequences[outcome_team]['winning'][sequence] = \
+                                    sequences[outcome_team]['winning'].get(sequence, 0) + 1
+                            elif outcome_type == 'error':
+                                sequences[outcome_team]['losing'][sequence] = \
+                                    sequences[outcome_team]['losing'].get(sequence, 0) + 1
 
                 # Process rally length outcomes
                 duration = rally['duration']
